@@ -5,7 +5,7 @@
 # 使い方: scripts/make_app.sh
 #   署名 ID は CODESIGN_IDENTITY で指定できる。未指定ならキーチェーンの "Apple Development" を使い、
 #   無ければ ad-hoc の "-" にする。ad-hoc はビルドごとに cdhash が変わり、
-#   TCC が別アプリとみなしてアクセシビリティ許可がリセットされる（実機で確認済み）。
+#   TCC が別アプリとみなしてアクセシビリティ許可がリセットされる。
 #   APP_VERSION（例: 0.2.0）と APP_BUILD（例: 42）を渡すと Info.plist の版数を上書きする。CI のリリース用。
 set -euo pipefail
 

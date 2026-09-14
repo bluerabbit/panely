@@ -112,7 +112,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         open("x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility")
     }
 
-    /// 「フルスクリーンアプリ間をスワイプ」を 3 本指に変えてもらうための導線（仕様 3.2）
+    /// macOS の 4 本指スワイプと衝突するため、「フルスクリーンアプリ間をスワイプ」を 3 本指に変えてもらう導線
     @objc private func openTrackpadSettings() {
         open("x-apple.systempreferences:com.apple.Trackpad-Settings.extension")
     }
