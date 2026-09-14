@@ -3,59 +3,156 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Panely の使い方</title>
+<title>Panely — ウインドウを、4 本指で。</title>
+<meta name="description" content="ショートカットか 4 本指ジェスチャーで、アクティブなウインドウを最大化・左半分・右半分に配置する macOS のメニューバーアプリ。">
+<meta property="og:title" content="Panely">
+<meta property="og:description" content="ショートカットか 4 本指ジェスチャーで、ウインドウを最大化・左半分・右半分に。macOS のメニューバーアプリ。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://bluerabbit.github.io/panely/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1024 1024'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%234A94FF'/%3E%3Cstop offset='1' stop-color='%230B57D0'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='100' y='100' width='824' height='824' rx='186' fill='url(%23g)'/%3E%3Crect x='232' y='304' width='560' height='416' rx='44' fill='none' stroke='%23fff' stroke-width='34'/%3E%3Crect x='284' y='356' width='212' height='312' rx='22' fill='%23fff'/%3E%3Crect x='528' y='356' width='212' height='312' rx='22' fill='%23fff' fill-opacity='.35'/%3E%3C/svg%3E">
 <style>
   :root {
-    --bg: #f4f4f6;
-    --panel: #ffffff;
-    --text: #1d1d1f;
-    --muted: #6e6e73;
-    --line: #e2e2e6;
-    --accent: #0a7aff;
-    --accent-soft: rgba(10, 122, 255, 0.14);
+    --bg: #0b0d12;
+    --bg-2: #10131b;
+    --panel: rgba(255,255,255,0.04);
+    --panel-strong: rgba(255,255,255,0.07);
+    --line: rgba(255,255,255,0.09);
+    --line-strong: rgba(255,255,255,0.16);
+    --text: #f3f4f8;
+    --muted: #9aa0ad;
+    --accent: #4a94ff;
+    --accent-2: #0b57d0;
+    --accent-soft: rgba(74,148,255,0.16);
     --finger: #ff6b3d;
-    --shadow: 0 10px 30px rgba(0,0,0,0.12);
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #161618;
-      --panel: #1f1f22;
-      --text: #f2f2f4;
-      --muted: #9a9aa2;
-      --line: #33333a;
-      --accent-soft: rgba(10, 122, 255, 0.24);
-      --shadow: 0 10px 30px rgba(0,0,0,0.5);
-    }
+    --shadow: 0 30px 80px rgba(0,0,0,0.55);
+    --radius: 18px;
   }
   * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
   body {
     margin: 0;
-    padding: 32px 20px 60px;
     background: var(--bg);
     color: var(--text);
     font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Helvetica Neue", sans-serif;
-    line-height: 1.6;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
   }
-  header { max-width: 1080px; margin: 0 auto 24px; }
-  header h1 { font-size: 26px; margin: 0 0 6px; letter-spacing: -0.01em; }
-  header p { margin: 0; color: var(--muted); font-size: 14px; }
-
-  .layout {
-    max-width: 1080px; margin: 0 auto;
-    display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 24px;
+  a { color: inherit; text-decoration: none; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+  kbd {
+    font-family: inherit; font-size: .92em; padding: .1em .5em; border-radius: 6px;
+    border: 1px solid var(--line-strong); background: rgba(255,255,255,0.05);
+    box-shadow: inset 0 -1px 0 rgba(255,255,255,0.08);
   }
-  @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent);
+    font-weight: 700;
+  }
+  .eyebrow::before { content: ""; width: 18px; height: 2px; background: var(--accent); border-radius: 2px; }
+  h2 { font-size: clamp(28px, 4vw, 40px); line-height: 1.2; letter-spacing: -0.02em; margin: 10px 0 14px; }
+  .lead { color: var(--muted); font-size: 17px; max-width: 640px; margin: 0; }
+  section { padding: 96px 0; position: relative; }
+  section + section { border-top: 1px solid var(--line); }
 
-  /* ---------- 擬似デスクトップ ---------- */
-  .screen-wrap { position: relative; }
+  /* ---------- ナビ ---------- */
+  .nav {
+    position: sticky; top: 0; z-index: 50;
+    backdrop-filter: blur(18px) saturate(1.4);
+    background: rgba(11,13,18,0.7);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 60px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 17px; letter-spacing: -0.01em; }
+  .brand svg { width: 28px; height: 28px; border-radius: 7px; }
+  .nav-links { display: flex; gap: 26px; font-size: 14px; color: var(--muted); }
+  .nav-links a:hover { color: var(--text); }
+  .nav-links .gh { display: inline-flex; align-items: center; gap: 6px; color: var(--text); }
+  @media (max-width: 640px) { .nav-links a:not(.gh) { display: none; } }
+
+  /* ---------- ヒーロー ---------- */
+  .hero { padding: 110px 0 80px; overflow: hidden; }
+  .hero::before {
+    content: ""; position: absolute; inset: -40% -20% auto -20%; height: 120%;
+    background:
+      radial-gradient(45% 55% at 30% 30%, rgba(74,148,255,0.32), transparent 70%),
+      radial-gradient(40% 50% at 75% 20%, rgba(11,87,208,0.35), transparent 70%),
+      radial-gradient(30% 40% at 60% 70%, rgba(255,107,61,0.10), transparent 70%);
+    filter: blur(20px); pointer-events: none;
+  }
+  .hero::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(60% 60% at 50% 20%, #000 0%, transparent 100%);
+  }
+  .hero .wrap { position: relative; z-index: 1; text-align: center; }
+  .hero-icon { width: 96px; height: 96px; border-radius: 24px; margin: 0 auto 28px; display: block;
+    box-shadow: 0 20px 60px rgba(74,148,255,0.35), 0 0 0 1px rgba(255,255,255,0.08); }
+  .hero h1 {
+    font-size: clamp(42px, 7vw, 84px); line-height: 1.02; letter-spacing: -0.035em; margin: 0 0 22px;
+    font-weight: 800;
+  }
+  .hero h1 .grad {
+    background: linear-gradient(120deg, #9cc4ff 0%, #4a94ff 45%, #b9d4ff 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .hero .lead { margin: 0 auto 36px; font-size: clamp(16px, 2vw, 20px); max-width: 680px; }
+  .cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px; padding: 13px 22px; border-radius: 999px;
+    font-weight: 600; font-size: 15px; border: 1px solid var(--line-strong);
+    background: var(--panel-strong); transition: transform .15s, background .15s, border-color .15s;
+  }
+  .btn:hover { transform: translateY(-1px); background: rgba(255,255,255,0.11); }
+  .btn.primary {
+    background: linear-gradient(180deg, #5aa0ff, #2b78ee); border-color: transparent; color: #fff;
+    box-shadow: 0 10px 30px rgba(74,148,255,0.35);
+  }
+  .btn.primary:hover { background: linear-gradient(180deg, #6aaaff, #3684f5); }
+  .specs { margin: 26px 0 0; display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; color: var(--muted); font-size: 13px; }
+  .specs span::before { content: "•"; margin-right: 8px; color: var(--accent); }
+
+  /* ---------- 操作テーブル（ヒーロー直下） ---------- */
+  .ops {
+    margin: 64px auto 0; max-width: 900px;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;
+  }
+  @media (max-width: 720px) { .ops { grid-template-columns: 1fr; } }
+  .op {
+    background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px 22px 20px;
+    text-align: left; display: grid; gap: 10px; position: relative; overflow: hidden;
+  }
+  .op::after {
+    content: ""; position: absolute; inset: auto -30% -60% auto; width: 60%; aspect-ratio: 1;
+    background: radial-gradient(circle, var(--accent-soft), transparent 70%); pointer-events: none;
+  }
+  .op .glyph { width: 44px; height: 30px; border: 2px solid var(--accent); border-radius: 7px; position: relative; }
+  .op .glyph::after { content: ""; position: absolute; inset: 3px; background: var(--accent); opacity: .55; border-radius: 3px; }
+  .op .glyph.left::after { right: 50%; }
+  .op .glyph.right::after { left: 50%; }
+  .op h3 { margin: 0; font-size: 20px; letter-spacing: -0.01em; }
+  .op .keys-line { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; color: var(--muted); font-size: 14px; }
+  .op .keys-line .or { opacity: .5; }
+
+  /* ---------- デモ ---------- */
+  .demo .layout {
+    margin-top: 40px;
+    display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 24px; align-items: start;
+  }
+  @media (max-width: 900px) { .demo .layout { grid-template-columns: 1fr; } }
+
   .screen {
     position: relative; width: 100%; aspect-ratio: 16 / 10;
-    border-radius: 14px; overflow: hidden;
+    border-radius: 16px; overflow: hidden;
     background:
       radial-gradient(120% 80% at 10% 0%, #ffb28a 0%, transparent 55%),
       radial-gradient(90% 90% at 100% 100%, #5b7cff 0%, transparent 60%),
       linear-gradient(160deg, #f6d7c3 0%, #a9c1ff 55%, #5b4bd6 100%);
-    box-shadow: var(--shadow);
+    box-shadow: var(--shadow), 0 0 0 1px rgba(255,255,255,0.12);
     user-select: none;
   }
   .menubar {
@@ -71,16 +168,14 @@
     width: 1.5em; height: 1.5em; border-radius: 5px; border: 1.5px solid #111;
     position: relative; cursor: pointer; display: grid; place-items: center;
   }
-  .status-icon::before, .status-icon::after {
-    content: ""; position: absolute; background: #111;
-  }
+  .status-icon::before, .status-icon::after { content: ""; position: absolute; background: #111; }
   .status-icon::before { width: 60%; height: 1.5px; }
   .status-icon::after { width: 1.5px; height: 60%; }
   .status-icon.active { background: #111; }
   .status-icon.active::before, .status-icon.active::after { background: #fff; }
 
   .dropdown {
-    position: absolute; top: 8%; right: 10%; width: 44%; min-width: 190px;
+    position: absolute; top: 8%; right: 10%; width: 46%; min-width: 210px;
     background: rgba(250,250,252,0.96); backdrop-filter: blur(20px);
     border-radius: 10px; box-shadow: 0 12px 40px rgba(0,0,0,0.3);
     padding: 6px; font-size: clamp(9px, 1.4vw, 12px); color: #111;
@@ -89,9 +184,9 @@
   .dropdown.open { display: block; }
   .dropdown .row { padding: 4px 10px; border-radius: 6px; display: flex; justify-content: space-between; gap: 8px; }
   .dropdown .row.disabled { color: #8a8a8e; }
-  .dropdown .row:not(.disabled):hover { background: var(--accent); color: #fff; }
+  .dropdown .row:not(.disabled):hover { background: #0a7aff; color: #fff; }
   .dropdown .sep { height: 1px; background: rgba(0,0,0,0.1); margin: 5px 8px; }
-  .dropdown kbd { font-family: inherit; }
+  .dropdown kbd { border: none; background: transparent; box-shadow: none; padding: 0; }
 
   .dock {
     position: absolute; left: 50%; bottom: 1.5%; transform: translateX(-50%);
@@ -102,8 +197,7 @@
   .dock i { display: block; height: 72%; aspect-ratio: 1; border-radius: 22%; opacity: 0.9; }
 
   .desk-window {
-    position: absolute;
-    left: 24%; top: 22%; width: 52%; height: 56%;
+    position: absolute; left: 24%; top: 22%; width: 52%; height: 56%;
     background: #fff; border-radius: 10px; overflow: hidden;
     box-shadow: 0 18px 50px rgba(0,0,0,0.28), 0 0 0 0.5px rgba(0,0,0,0.25);
     transition: left .38s cubic-bezier(.2,.8,.2,1), top .38s cubic-bezier(.2,.8,.2,1),
@@ -129,46 +223,36 @@
   }
   .badge.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 
-  /* ---------- 操作パネル ---------- */
   .panel {
-    background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
-    padding: 18px; box-shadow: var(--shadow);
-    display: flex; flex-direction: column; gap: 16px;
+    background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 20px; display: flex; flex-direction: column; gap: 18px;
   }
-  .panel h2 { margin: 0; font-size: 14px; color: var(--muted); font-weight: 600; letter-spacing: .02em; }
+  .panel h3 { margin: 0; font-size: 12px; color: var(--muted); font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
   .actions { display: grid; gap: 8px; }
   .actions button {
-    all: unset; cursor: pointer; display: flex; align-items: center; gap: 10px;
-    padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line);
+    all: unset; cursor: pointer; display: flex; align-items: center; gap: 12px;
+    padding: 11px 12px; border-radius: 12px; border: 1px solid var(--line);
     background: transparent; color: var(--text); font-size: 14px;
+    transition: background .15s, border-color .15s;
   }
-  .actions button:hover { background: var(--accent-soft); border-color: transparent; }
+  .actions button:hover { background: var(--accent-soft); border-color: rgba(74,148,255,0.35); }
   .actions button.playing { border-color: var(--accent); background: var(--accent-soft); }
   .actions .glyph {
     width: 30px; height: 20px; border: 1.5px solid currentColor; border-radius: 4px;
     position: relative; flex: none; opacity: .8;
   }
-  .actions .glyph::after {
-    content: ""; position: absolute; background: currentColor; opacity: .35; inset: 2px;
-  }
+  .actions .glyph::after { content: ""; position: absolute; background: currentColor; opacity: .35; inset: 2px; }
   .actions .glyph.left::after { right: 50%; }
   .actions .glyph.right::after { left: 50%; }
   .actions .label { flex: 1; }
-  .actions kbd {
-    font-family: inherit; font-size: 12px; color: var(--muted);
-    border: 1px solid var(--line); border-radius: 5px; padding: 1px 6px;
-  }
   .actions .fingers { font-size: 12px; color: var(--muted); }
 
   .trackpad-wrap { display: flex; flex-direction: column; gap: 6px; }
   .trackpad {
-    position: relative; width: 100%; aspect-ratio: 4 / 3; border-radius: 14px;
-    background: linear-gradient(180deg, #d9d9de, #c4c4ca);
-    box-shadow: inset 0 2px 6px rgba(0,0,0,0.15), 0 1px 0 rgba(255,255,255,0.6);
+    position: relative; width: 100%; aspect-ratio: 4 / 3; border-radius: 16px;
+    background: linear-gradient(180deg, #2a2d36, #1a1d25);
+    box-shadow: inset 0 2px 8px rgba(0,0,0,0.5), 0 0 0 1px var(--line-strong);
     overflow: hidden;
-  }
-  @media (prefers-color-scheme: dark) {
-    .trackpad { background: linear-gradient(180deg, #3a3a40, #2a2a2f); }
   }
   .finger {
     position: absolute; width: 11%; aspect-ratio: 1; border-radius: 50%;
@@ -186,147 +270,334 @@
   }
   .arrow {
     position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
-    font-size: 40px; color: rgba(0,0,0,.25); opacity: 0; transition: opacity .2s;
+    font-size: 40px; color: rgba(255,255,255,.3); opacity: 0; transition: opacity .2s;
   }
-  @media (prefers-color-scheme: dark) { .arrow { color: rgba(255,255,255,.3); } }
   .arrow.show { opacity: 1; }
   .trackpad-caption { font-size: 12px; color: var(--muted); text-align: center; min-height: 1.6em; }
 
   .keys { display: flex; gap: 6px; justify-content: center; }
   .keys span {
-    min-width: 40px; padding: 6px 10px; text-align: center; border-radius: 8px;
-    border: 1px solid var(--line); background: var(--bg); font-size: 13px;
-    box-shadow: 0 2px 0 var(--line); transition: transform .08s, box-shadow .08s, background .08s;
+    min-width: 42px; padding: 7px 10px; text-align: center; border-radius: 9px;
+    border: 1px solid var(--line-strong); background: rgba(255,255,255,0.04); font-size: 14px;
+    box-shadow: 0 2px 0 var(--line-strong); transition: transform .08s, box-shadow .08s, background .08s;
   }
-  .keys span.pressed { transform: translateY(2px); box-shadow: 0 0 0 var(--line); background: var(--accent-soft); }
-
+  .keys span.pressed { transform: translateY(2px); box-shadow: 0 0 0 var(--line-strong); background: var(--accent-soft); }
   .note { font-size: 12px; color: var(--muted); margin: 0; }
   .note code { font-family: ui-monospace, Menlo, monospace; font-size: 11px; }
 
-  /* ---------- 説明セクション ---------- */
-  .flow { max-width: 1080px; margin: 32px auto 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
-  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
-  .card h3 { margin: 0 0 6px; font-size: 14px; }
-  .card p { margin: 0; font-size: 13px; color: var(--muted); }
-  .card .num { display: inline-block; width: 22px; height: 22px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 12px; text-align: center; line-height: 22px; margin-right: 6px; }
+  /* ---------- 特徴 ---------- */
+  .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 40px; }
+  @media (max-width: 860px) { .features { grid-template-columns: 1fr; } }
+  .feature {
+    background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 26px;
+  }
+  .feature .ic {
+    width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; margin-bottom: 16px;
+    background: var(--accent-soft); color: var(--accent); font-size: 18px; font-weight: 700;
+  }
+  .feature h3 { margin: 0 0 8px; font-size: 19px; letter-spacing: -0.01em; }
+  .feature p { margin: 0; color: var(--muted); font-size: 15px; }
+
+  /* ---------- 仕組み ---------- */
+  .flow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 40px; counter-reset: step; }
+  @media (max-width: 960px) { .flow { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { .flow { grid-template-columns: 1fr; } }
+  .step {
+    position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px;
+  }
+  .step::before {
+    counter-increment: step; content: counter(step, decimal-leading-zero);
+    display: block; font-size: 12px; letter-spacing: .12em; color: var(--accent); font-weight: 700; margin-bottom: 10px;
+  }
+  .step h3 { margin: 0 0 6px; font-size: 17px; }
+  .step p { margin: 0; color: var(--muted); font-size: 14px; }
+
+  /* ---------- 導入 ---------- */
+  .setup { display: grid; grid-template-columns: 1.1fr .9fr; gap: 28px; margin-top: 40px; align-items: start; }
+  @media (max-width: 900px) { .setup { grid-template-columns: 1fr; } }
+  ol.steps { list-style: none; padding: 0; margin: 0; display: grid; gap: 14px; counter-reset: s; }
+  ol.steps li {
+    display: grid; grid-template-columns: 36px 1fr; gap: 14px; align-items: start;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px;
+  }
+  ol.steps li::before {
+    counter-increment: s; content: counter(s);
+    width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center;
+    background: linear-gradient(180deg, #5aa0ff, #2b78ee); color: #fff; font-weight: 700; font-size: 15px;
+  }
+  ol.steps strong { display: block; font-size: 15px; margin-bottom: 2px; }
+  ol.steps span { color: var(--muted); font-size: 14px; }
+  pre {
+    margin: 0; padding: 18px 20px; border-radius: 14px; overflow-x: auto;
+    background: #05070b; border: 1px solid var(--line); font-size: 13.5px; line-height: 1.7;
+    font-family: ui-monospace, Menlo, monospace; color: #d7dbe6;
+  }
+  pre .c { color: #6b7280; }
+  pre .p { color: var(--accent); }
+  .side-note {
+    margin-top: 14px; padding: 16px 18px; border-radius: 14px;
+    background: rgba(255,107,61,0.08); border: 1px solid rgba(255,107,61,0.25); font-size: 14px; color: #f1d9cf;
+  }
+  .side-note strong { color: #ffb08f; }
+
+  /* ---------- 注意点 ---------- */
+  .caveats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-top: 40px; }
+  @media (max-width: 720px) { .caveats { grid-template-columns: 1fr; } }
+  .caveat { border-left: 2px solid var(--line-strong); padding: 4px 0 4px 18px; }
+  .caveat h3 { margin: 0 0 4px; font-size: 16px; }
+  .caveat p { margin: 0; color: var(--muted); font-size: 14px; }
+
+  /* ---------- フッター CTA ---------- */
+  .final { text-align: center; }
+  .final h2 { font-size: clamp(30px, 5vw, 52px); }
+  .final .cta { margin-top: 28px; }
+  footer { border-top: 1px solid var(--line); padding: 32px 0 48px; color: var(--muted); font-size: 13px; }
+  footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  footer a:hover { color: var(--text); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .desk-window, .finger, .keys span, .btn { transition: none; animation: none; }
+  }
 </style>
 </head>
 <body>
 
-<header>
-  <h1>Panely の使い方</h1>
-  <p>アクティブなウインドウを、ショートカット（⌃⌥↩ / ⌃⌥← / ⌃⌥→）またはトラックパッドの 4 本指ジェスチャー（タップ / 左スワイプ / 右スワイプ）で「最大化」「左半分」「右半分」に配置する macOS のメニューバーアプリです。右のボタンで各操作の動きを再生します。メニューバーのアイコンをクリックするとメニューが開きます。<a href="https://github.com/bluerabbit/panely">GitHub リポジトリ</a></p>
-</header>
+<nav class="nav">
+  <div class="wrap">
+    <a class="brand" href="#top">
+      <svg viewBox="0 0 1024 1024" aria-hidden="true"><defs><linearGradient id="bg1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4A94FF"/><stop offset="1" stop-color="#0B57D0"/></linearGradient></defs><rect width="1024" height="1024" rx="230" fill="url(#bg1)"/><rect x="232" y="304" width="560" height="416" rx="44" fill="none" stroke="#fff" stroke-width="34"/><rect x="284" y="356" width="212" height="312" rx="22" fill="#fff"/><rect x="528" y="356" width="212" height="312" rx="22" fill="#fff" fill-opacity=".35"/></svg>
+      Panely
+    </a>
+    <div class="nav-links">
+      <a href="#demo">デモ</a>
+      <a href="#features">特徴</a>
+      <a href="#how">仕組み</a>
+      <a href="#setup">導入</a>
+      <a class="gh" href="https://github.com/bluerabbit/panely">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+</nav>
 
-<div class="layout">
-  <div class="screen-wrap">
-    <div class="screen" id="screen">
-      <div class="menubar">
-        <div class="left"><span></span><span class="app">Finder</span><span>ファイル</span><span>編集</span><span>表示</span><span>ウインドウ</span></div>
-        <div class="right">
-          <div class="status-icon" id="statusIcon" title="Panely"></div>
-          <span>Wi-Fi</span><span>100%</span><span id="clock">9:41</span>
-        </div>
+<section class="hero" id="top">
+  <div class="wrap">
+    <svg class="hero-icon" viewBox="0 0 1024 1024" aria-hidden="true"><defs><linearGradient id="bg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4A94FF"/><stop offset="1" stop-color="#0B57D0"/></linearGradient><linearGradient id="gl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs><rect width="1024" height="1024" rx="230" fill="url(#bg2)"/><rect width="1024" height="512" rx="230" fill="url(#gl)"/><rect x="232" y="304" width="560" height="416" rx="44" fill="none" stroke="#fff" stroke-width="34"/><rect x="284" y="356" width="212" height="312" rx="22" fill="#fff"/><rect x="528" y="356" width="212" height="312" rx="22" fill="#fff" fill-opacity=".35"/></svg>
+    <h1>ウインドウを、<br><span class="grad">4 本指で。</span></h1>
+    <p class="lead">
+      ショートカットか、トラックパッドの 4 本指ジェスチャーで、いま使っているウインドウを
+      最大化・左半分・右半分に配置します。設定画面のない、macOS のメニューバーアプリです。
+    </p>
+    <div class="cta">
+      <a class="btn primary" href="https://github.com/bluerabbit/panely/releases/latest">ダウンロード</a>
+      <a class="btn" href="https://github.com/bluerabbit/panely">ソースコードを見る</a>
+    </div>
+    <p class="specs">
+      <span>macOS 14 以降</span><span>Apple Silicon</span><span>オープンソース（MIT）</span><span>設定 UI なし</span>
+    </p>
+
+    <div class="ops">
+      <div class="op">
+        <div class="glyph"></div>
+        <h3>最大化</h3>
+        <div class="keys-line"><kbd>⌃</kbd><kbd>⌥</kbd><kbd>↩</kbd><span class="or">または</span>4 本指タップ</div>
       </div>
-
-      <div class="dropdown" id="dropdown">
-        <div class="row disabled"><span><kbd>⌃⌥↩</kbd> / 4本指タップ</span><span>最大化</span></div>
-        <div class="row disabled"><span><kbd>⌃⌥←</kbd> / 4本指←</span><span>左半分</span></div>
-        <div class="row disabled"><span><kbd>⌃⌥→</kbd> / 4本指→</span><span>右半分</span></div>
-        <div class="sep"></div>
-        <div class="row"><span>アクセシビリティ設定を開く</span></div>
-        <div class="row disabled"><span>スワイプが効かないときは「フルスクリーンアプリ間をスワイプ」を 3 本指に</span></div>
-        <div class="row"><span>トラックパッド設定を開く</span></div>
-        <div class="sep"></div>
-        <div class="row"><span>Panely を終了</span><kbd>⌘Q</kbd></div>
+      <div class="op">
+        <div class="glyph left"></div>
+        <h3>左半分</h3>
+        <div class="keys-line"><kbd>⌃</kbd><kbd>⌥</kbd><kbd>←</kbd><span class="or">または</span>4 本指で左スワイプ</div>
       </div>
-
-      <div class="desk-window" id="win">
-        <div class="titlebar">
-          <span class="dot" style="background:#ff5f57"></span>
-          <span class="dot" style="background:#febc2e"></span>
-          <span class="dot" style="background:#28c840"></span>
-          <span class="title">書類</span>
-        </div>
-        <div class="content">
-          <div class="side"></div>
-          <div class="main"><b></b><b></b><b></b><b></b><b></b><b></b></div>
-        </div>
-      </div>
-
-      <div class="badge" id="badge">最大化</div>
-
-      <div class="dock">
-        <i style="background:#3b82f6"></i><i style="background:#f59e0b"></i><i style="background:#10b981"></i>
-        <i style="background:#ef4444"></i><i style="background:#8b5cf6"></i><i style="background:#64748b"></i>
+      <div class="op">
+        <div class="glyph right"></div>
+        <h3>右半分</h3>
+        <div class="keys-line"><kbd>⌃</kbd><kbd>⌥</kbd><kbd>→</kbd><span class="or">または</span>4 本指で右スワイプ</div>
       </div>
     </div>
   </div>
-
-  <aside class="panel">
-    <h2>操作を再生</h2>
-    <div class="actions">
-      <button data-action="shortcut">
-        <span class="glyph"></span>
-        <span class="label">最大化</span>
-        <kbd>⌃⌥↩</kbd>
-      </button>
-      <button data-action="tap">
-        <span class="glyph"></span>
-        <span class="label">最大化</span>
-        <span class="fingers">4本指タップ</span>
-      </button>
-      <button data-action="shortcutLeft">
-        <span class="glyph left"></span>
-        <span class="label">左半分</span>
-        <kbd>⌃⌥←</kbd>
-      </button>
-      <button data-action="swipeLeft">
-        <span class="glyph left"></span>
-        <span class="label">左半分</span>
-        <span class="fingers">4本指 ← スワイプ</span>
-      </button>
-      <button data-action="shortcutRight">
-        <span class="glyph right"></span>
-        <span class="label">右半分</span>
-        <kbd>⌃⌥→</kbd>
-      </button>
-      <button data-action="swipeRight">
-        <span class="glyph right"></span>
-        <span class="label">右半分</span>
-        <span class="fingers">4本指 → スワイプ</span>
-      </button>
-      <button data-action="reset">
-        <span class="glyph" style="opacity:.4"></span>
-        <span class="label">ウインドウを元に戻す</span>
-      </button>
-    </div>
-
-    <div class="trackpad-wrap">
-      <div class="trackpad" id="trackpad">
-        <div class="arrow" id="arrow">←</div>
-        <div class="finger" id="f0"></div>
-        <div class="finger" id="f1"></div>
-        <div class="finger" id="f2"></div>
-        <div class="finger" id="f3"></div>
-      </div>
-      <div class="trackpad-caption" id="caption">トラックパッド</div>
-    </div>
-
-    <div class="keys" id="keys">
-      <span data-key="ctrl">⌃</span><span data-key="opt">⌥</span><span data-key="ret">↩</span>
-    </div>
-
-    <p class="note">最大化はネイティブフルスクリーンではなく、メニューバーと Dock を除いた領域（<code>visibleFrame</code>）に合わせる動作です。</p>
-  </aside>
-</div>
-
-<section class="flow">
-  <div class="card"><h3><span class="num">1</span>入力</h3><p>Carbon ホットキー、または MultitouchSupport から届く 4 本指のタッチフレームを受け取ります。</p></div>
-  <div class="card"><h3><span class="num">2</span>認識</h3><p>「同時接触が 4 本ちょうど」「300ms 以内で動かない → タップ」「横に 12% 以上動く → スワイプ」を判定します。3 本指、5 本指、上下スワイプ、ピンチには反応しません。</p></div>
-  <div class="card"><h3><span class="num">3</span>対象取得</h3><p>アクセシビリティ API で最前面のウインドウと、それが乗っている画面を特定します。ネイティブフルスクリーン中は何もしません。</p></div>
-  <div class="card"><h3><span class="num">4</span>配置</h3><p>画面の visibleFrame から目標の矩形を計算し、「位置 → 大きさ → 位置」の順で書き込みます。</p></div>
 </section>
+
+<section class="demo" id="demo">
+  <div class="wrap">
+    <span class="eyebrow">Demo</span>
+    <h2>動きを見る</h2>
+    <p class="lead">右のボタンで各操作を再生します。画面の中のメニューバーのアイコンをクリックすると、実際のメニューが開きます。</p>
+
+    <div class="layout">
+      <div class="screen" id="screen">
+        <div class="menubar">
+          <div class="left"><span></span><span class="app">Finder</span><span>ファイル</span><span>編集</span><span>表示</span><span>ウインドウ</span></div>
+          <div class="right">
+            <div class="status-icon" id="statusIcon" title="Panely"></div>
+            <span>Wi-Fi</span><span>100%</span><span id="clock">9:41</span>
+          </div>
+        </div>
+
+        <div class="dropdown" id="dropdown">
+          <div class="row disabled"><span><kbd>⌃⌥↩</kbd> / 4本指タップ</span><span>最大化</span></div>
+          <div class="row disabled"><span><kbd>⌃⌥←</kbd> / 4本指←</span><span>左半分</span></div>
+          <div class="row disabled"><span><kbd>⌃⌥→</kbd> / 4本指→</span><span>右半分</span></div>
+          <div class="sep"></div>
+          <div class="row"><span>アクセシビリティ設定を開く</span></div>
+          <div class="row disabled"><span>スワイプが効かないときは「フルスクリーンアプリ間をスワイプ」を 3 本指に</span></div>
+          <div class="row"><span>トラックパッド設定を開く</span></div>
+          <div class="sep"></div>
+          <div class="row"><span>Panely を終了</span><kbd>⌘Q</kbd></div>
+        </div>
+
+        <div class="desk-window" id="win">
+          <div class="titlebar">
+            <span class="dot" style="background:#ff5f57"></span>
+            <span class="dot" style="background:#febc2e"></span>
+            <span class="dot" style="background:#28c840"></span>
+            <span class="title">書類</span>
+          </div>
+          <div class="content">
+            <div class="side"></div>
+            <div class="main"><b></b><b></b><b></b><b></b><b></b><b></b></div>
+          </div>
+        </div>
+
+        <div class="badge" id="badge">最大化</div>
+
+        <div class="dock">
+          <i style="background:#3b82f6"></i><i style="background:#f59e0b"></i><i style="background:#10b981"></i>
+          <i style="background:#ef4444"></i><i style="background:#8b5cf6"></i><i style="background:#64748b"></i>
+        </div>
+      </div>
+
+      <aside class="panel">
+        <h3>操作を再生</h3>
+        <div class="actions">
+          <button data-action="shortcut"><span class="glyph"></span><span class="label">最大化</span><kbd>⌃⌥↩</kbd></button>
+          <button data-action="tap"><span class="glyph"></span><span class="label">最大化</span><span class="fingers">4本指タップ</span></button>
+          <button data-action="shortcutLeft"><span class="glyph left"></span><span class="label">左半分</span><kbd>⌃⌥←</kbd></button>
+          <button data-action="swipeLeft"><span class="glyph left"></span><span class="label">左半分</span><span class="fingers">4本指 ← スワイプ</span></button>
+          <button data-action="shortcutRight"><span class="glyph right"></span><span class="label">右半分</span><kbd>⌃⌥→</kbd></button>
+          <button data-action="swipeRight"><span class="glyph right"></span><span class="label">右半分</span><span class="fingers">4本指 → スワイプ</span></button>
+          <button data-action="reset"><span class="glyph" style="opacity:.4"></span><span class="label">ウインドウを元に戻す</span></button>
+        </div>
+
+        <div class="trackpad-wrap">
+          <div class="trackpad" id="trackpad">
+            <div class="arrow" id="arrow">←</div>
+            <div class="finger" id="f0"></div>
+            <div class="finger" id="f1"></div>
+            <div class="finger" id="f2"></div>
+            <div class="finger" id="f3"></div>
+          </div>
+          <div class="trackpad-caption" id="caption">トラックパッド</div>
+        </div>
+
+        <div class="keys" id="keys">
+          <span data-key="ctrl">⌃</span><span data-key="opt">⌥</span><span data-key="ret">↩</span>
+        </div>
+
+        <p class="note">最大化はネイティブフルスクリーンではなく、メニューバーと Dock を除いた領域（<code>visibleFrame</code>）に合わせる動作です。</p>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <span class="eyebrow">Features</span>
+    <h2>やることは 3 つだけ</h2>
+    <p class="lead">グリッドもプリセットもありません。毎日使う配置だけを、手を止めずに呼び出せます。</p>
+    <div class="features">
+      <div class="feature">
+        <div class="ic">⌃⌥</div>
+        <h3>キーボードから</h3>
+        <p>⌃⌥ と ↩ ← → の 3 つ。どのアプリが前面でも届くグローバルショートカットです。アクセシビリティの許可があれば動きます。</p>
+      </div>
+      <div class="feature">
+        <div class="ic">4</div>
+        <h3>トラックパッドから</h3>
+        <p>4 本指のタップと左右スワイプ。3 本指や 5 本指、上下のスワイプ、ピンチには反応しないので、Mission Control や Launchpad と衝突しません。</p>
+      </div>
+      <div class="feature">
+        <div class="ic">◫</div>
+        <h3>画面ごとに正しく</h3>
+        <p>ウインドウが乗っている画面の作業領域を基準に配置します。外部ディスプレイでも、メニューバーと Dock を避けた領域いっぱいに広がります。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <span class="eyebrow">How it works</span>
+    <h2>仕組み</h2>
+    <p class="lead">入力から配置までの 4 段階です。判定と配置計算は AppKit に依存しない純粋なロジックで、ユニットテストで固めています。</p>
+    <div class="flow">
+      <div class="step"><h3>入力</h3><p>Carbon ホットキー、または MultitouchSupport から届く 4 本指のタッチフレームを受け取ります。</p></div>
+      <div class="step"><h3>認識</h3><p>「同時接触が 4 本ちょうど」「300ms 以内で動かない → タップ」「横に 12% 以上動く → スワイプ」を判定します。</p></div>
+      <div class="step"><h3>対象取得</h3><p>アクセシビリティ API で最前面のウインドウと、それが乗っている画面を特定します。ネイティブフルスクリーン中は何もしません。</p></div>
+      <div class="step"><h3>配置</h3><p>画面の visibleFrame から目標の矩形を計算し、「位置 → 大きさ → 位置」の順で書き込みます。</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="setup">
+  <div class="wrap">
+    <span class="eyebrow">Setup</span>
+    <h2>導入は 3 ステップ</h2>
+    <p class="lead">自分の Mac でビルドする方法を推奨しています。Release の zip は Apple Silicon 専用で、ad-hoc 署名です。</p>
+    <div class="setup">
+      <ol class="steps">
+        <li><div><strong>ビルドして起動する</strong><span>右のコマンドで <code>build/Panely.app</code> ができます。開くとメニューバーにアイコンが出ます。</span></div></li>
+        <li><div><strong>アクセシビリティを許可する</strong><span>起動直後に案内ウインドウが出ます。「システム設定 > プライバシーとセキュリティ > アクセシビリティ」で Panely を有効にすると、ウインドウは自動で閉じます。</span></div></li>
+        <li><div><strong>4 本指スワイプの衝突を避ける</strong><span>「システム設定 > トラックパッド > その他のジェスチャ」で「フルスクリーンアプリ間をスワイプ」を 3 本指にします。メニューから設定画面を開けます。</span></div></li>
+      </ol>
+      <div>
+<pre><span class="c"># クローンしてビルド</span>
+<span class="p">$</span> git clone https://github.com/bluerabbit/panely.git
+<span class="p">$</span> cd panely
+<span class="p">$</span> scripts/make_app.sh
+<span class="p">$</span> open build/Panely.app</pre>
+        <div class="side-note">
+          <strong>常用するとき</strong><br>
+          <code>build/Panely.app</code> を /Applications に移し、「システム設定 > 一般 > ログイン項目」に登録します。
+          移動後はアクセシビリティ許可を一度やり直します。
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="notes">
+  <div class="wrap">
+    <span class="eyebrow">Notes</span>
+    <h2>知っておくこと</h2>
+    <div class="caveats">
+      <div class="caveat"><h3>private framework を使います</h3><p>4 本指の検出には MultitouchSupport.framework を使います。App Sandbox は使えず App Store 配布はできません。OS の更新で動かなくなる可能性があります。</p></div>
+      <div class="caveat"><h3>ネイティブフルスクリーンは対象外</h3><p>フルスクリーン中のウインドウはアクセシビリティ API で動かせないため、何もしません。</p></div>
+      <div class="caveat"><h3>署名について</h3><p>ローカルビルドはキーチェーンの Apple Development 証明書を自動で使います。ad-hoc 署名だとリビルドのたびに許可が外れるためです。</p></div>
+      <div class="caveat"><h3>設定 UI はありません</h3><p>ショートカットとしきい値はコード内の定数です。変えたいときはソースを編集して再ビルドします。</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="final">
+  <div class="wrap">
+    <h2>ウインドウの配置を、<br>考えなくていい操作に。</h2>
+    <div class="cta">
+      <a class="btn primary" href="https://github.com/bluerabbit/panely/releases/latest">ダウンロード</a>
+      <a class="btn" href="https://github.com/bluerabbit/panely">GitHub で見る</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>Panely · MIT License</span>
+    <span>
+      <a href="https://github.com/bluerabbit/panely">GitHub</a> ·
+      <a href="https://github.com/bluerabbit/panely/releases">Releases</a> ·
+      <a href="https://github.com/bluerabbit/panely/issues">Issues</a>
+    </span>
+  </div>
+</footer>
 
 <script>
 (function () {
@@ -458,6 +729,22 @@
   tick(); setInterval(tick, 30000);
 
   applyFrame('original');
+
+  // ヒーローが見えている間、デモを自動で一巡させて動きを伝える
+  const demo = document.getElementById('demo');
+  let autoplayed = false;
+  const io = new IntersectionObserver(async entries => {
+    if (autoplayed || !entries.some(e => e.isIntersecting)) return;
+    autoplayed = true;
+    io.disconnect();
+    await sleep(600);
+    for (const name of ['tap', 'swipeLeft', 'swipeRight']) {
+      const b = buttons.find(x => x.dataset.action === name);
+      await run(name, b);
+      await sleep(500);
+    }
+  }, { threshold: 0.5 });
+  io.observe(demo);
 })();
 </script>
 </body>

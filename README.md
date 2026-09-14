@@ -12,7 +12,7 @@
 「最大化」はメニューバーと Dock を除いた領域（`NSScreen.visibleFrame`）いっぱいに配置します。
 macOS のネイティブフルスクリーンではありません。配置の基準はウインドウが乗っている画面です。
 
-操作の動きは [index.html](index.html) で再生できます（ブラウザで開くか、GitHub Pages で公開します）。
+操作の動きは https://bluerabbit.github.io/panely/ で再生できます（ソースは `index.html`）。
 
 ## 動作環境
 
@@ -89,8 +89,14 @@ Sources/
     ├── Gesture/   # TouchFrame、GestureRecognizer（4 本指の判定。AppKit 非依存）
     └── Services/  # AccessibilityService、HotKeyService、MultitouchService
 Tests/PanelyTests/ # Layout と Gesture のユニットテスト
-scripts/           # make_app.sh（.app の組み立てと署名）
+Assets/            # AppIcon.svg と、そこから生成した AppIcon.icns
+scripts/           # make_app.sh（.app の組み立てと署名）、make_icon.sh（SVG から .icns を生成）
+index.html         # ホームページ（GitHub Pages）
 ```
+
+アイコンを変えるときは `Assets/AppIcon.svg` を編集し、`scripts/make_icon.sh` で `.icns` を作り直します。
+変換には `rsvg-convert`（`brew install librsvg`）を使い、無ければ `qlmanage` で代用します。
+生成した `.icns` はコミットします。CI のランナーで変換ツールに依存しないためです。
 
 動作ログは統合ログに出ます。
 
@@ -116,6 +122,11 @@ Release の zip は Apple Silicon（arm64）専用です。
 CI では証明書を使わないため、ad-hoc 署名で公証もありません。
 ダウンロードした `.app` は初回に Gatekeeper の警告が出るので、右クリックの「開く」から起動します。
 また ad-hoc 署名はリリースごとに別アプリとみなされ、アクセシビリティ許可のやり直しが必要です。
+
+## ホームページ
+
+リポジトリ直下の `index.html` を GitHub Pages で https://bluerabbit.github.io/panely/ に公開しています。
+Pages のソースは `main` ブランチの `/ (root)` です。`main` に push すると更新されます。
 
 ## 謝辞
 
