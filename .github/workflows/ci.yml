@@ -1,0 +1,61 @@
+name: CI
+
+run-name: CI ${{ github.event_name }} ${{ github.ref_name }} by ${{ github.actor }}
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    # macos-26 は Apple Silicon のみ。Package.swift は macOS 14 以上を対象にしている
+    runs-on: macos-26
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Show toolchain
+        run: |
+          sw_vers
+          swift --version
+
+      - name: Build
+        run: swift build
+
+      - name: Test
+        run: swift test 2>&1 | tee test.log
+
+      - name: Assemble app
+        env:
+          # CI に証明書は無いので ad-hoc 署名。配布用ではなく組み立てが壊れていないことの確認
+          CODESIGN_IDENTITY: "-"
+        run: scripts/make_app.sh
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: Panely-${{ github.sha }}
+          path: build/Panely.app
+          retention-days: 7
+
+      - name: Create summary
+        if: always()
+        run: |
+          {
+            echo "## CI サマリー"
+            echo ""
+            echo "| 項目 | 値 |"
+            echo "| --- | --- |"
+            echo "| 実行者 | ${{ github.actor }} |"
+            echo "| 実行時刻 | $(date -u '+%Y-%m-%d %H:%M:%S UTC') |"
+            echo "| macOS | $(sw_vers -productVersion) |"
+            echo "| Swift | $(swift --version 2>&1 | head -1) |"
+            echo "| テスト | $(grep -E 'Executed [0-9]+ tests' test.log | tail -1 | sed 's/^[[:space:]]*//' || echo '未実行') |"
+          } >> "$GITHUB_STEP_SUMMARY"
