@@ -112,7 +112,8 @@ git tag v0.1.0
 git push origin v0.1.0
 ```
 
-CI では証明書を使わないため、Release の zip は ad-hoc 署名で公証もありません。
+Release の zip は Apple Silicon（arm64）専用です。
+CI では証明書を使わないため、ad-hoc 署名で公証もありません。
 ダウンロードした `.app` は初回に Gatekeeper の警告が出るので、右クリックの「開く」から起動します。
 また ad-hoc 署名はリリースごとに別アプリとみなされ、アクセシビリティ許可のやり直しが必要です。
 
