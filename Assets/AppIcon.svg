@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!-- Panely のアプリアイコン。左半分と右半分に分かれた画面を表す。
+       角丸の正方形は macOS のアイコングリッド（1024 中 824）に合わせている。 -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4A94FF"/>
+      <stop offset="1" stop-color="#0B57D0"/>
+    </linearGradient>
+    <linearGradient id="gloss" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect x="100" y="100" width="824" height="824" rx="186" fill="url(#bg)"/>
+  <rect x="100" y="100" width="824" height="412" rx="186" fill="url(#gloss)"/>
+  <!-- 画面の枠 -->
+  <rect x="232" y="304" width="560" height="416" rx="44" fill="none" stroke="#ffffff" stroke-width="34" stroke-opacity="0.95"/>
+  <!-- 左半分に置かれたウインドウ -->
+  <rect x="284" y="356" width="212" height="312" rx="22" fill="#ffffff" fill-opacity="0.95"/>
+  <!-- 右半分（空き） -->
+  <rect x="528" y="356" width="212" height="312" rx="22" fill="#ffffff" fill-opacity="0.35"/>
+</svg>

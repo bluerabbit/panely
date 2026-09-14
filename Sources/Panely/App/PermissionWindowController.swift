@@ -53,9 +53,13 @@ final class PermissionWindowController: NSWindowController {
     // MARK: - レイアウト
 
     private func makeContentView() -> NSView {
-        let icon = NSImageView(image: NSImage(systemSymbolName: "rectangle.split.2x1", accessibilityDescription: "Panely")!)
-        icon.symbolConfiguration = .init(pointSize: 56, weight: .regular)
-        icon.contentTintColor = .controlAccentColor
+        // .app バンドルのアイコン（Assets/AppIcon.icns）。バンドル外で動かしたときは汎用アイコンになる
+        let icon = NSImageView(image: NSApp.applicationIconImage)
+        icon.imageScaling = .scaleProportionallyUpOrDown
+        NSLayoutConstraint.activate([
+            icon.widthAnchor.constraint(equalToConstant: 96),
+            icon.heightAnchor.constraint(equalToConstant: 96),
+        ])
 
         let title = NSTextField(labelWithString: "「アクセシビリティ」の許可が必要です")
         title.font = .systemFont(ofSize: 20, weight: .bold)

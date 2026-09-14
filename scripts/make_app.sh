@@ -24,9 +24,10 @@ swift build -c release
 BIN_DIR="$(swift build -c release --show-bin-path)"
 
 rm -rf "$APP_DIR"
-mkdir -p "$APP_DIR/Contents/MacOS"
+mkdir -p "$APP_DIR/Contents/MacOS" "$APP_DIR/Contents/Resources"
 cp "$BIN_DIR/$APP_NAME" "$APP_DIR/Contents/MacOS/$APP_NAME"
 cp "${APP_NAME}-Info.plist" "$APP_DIR/Contents/Info.plist"
+cp Assets/AppIcon.icns "$APP_DIR/Contents/Resources/AppIcon.icns"
 if [[ -n "${APP_VERSION:-}" ]]; then
   plutil -replace CFBundleShortVersionString -string "$APP_VERSION" "$APP_DIR/Contents/Info.plist"
 fi
