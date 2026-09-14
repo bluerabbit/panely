@@ -13,12 +13,6 @@ let package = Package(
             name: "CMultitouch",
             path: "Sources/CMultitouch"
         ),
-        // 検証用 CLI。MultitouchSupport からタッチフレームが取れるかを確かめる。
-        .executableTarget(
-            name: "mt-spike",
-            dependencies: ["CMultitouch"],
-            path: "Sources/mt-spike"
-        ),
         // 本体。Layout/ と Gesture/ は AppKit に依存しない純粋ロジックで、テストから @testable import する。
         .executableTarget(
             name: "Panely",

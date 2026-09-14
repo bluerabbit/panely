@@ -76,13 +76,11 @@ CODESIGN_IDENTITY="Apple Development: ..." scripts/make_app.sh
 ```bash
 swift build
 swift test
-swift run mt-spike 30     # MultitouchSupport の検証 CLI（30 秒間タッチを記録して統計を出す）
 ```
 
 ```
 Sources/
 ├── CMultitouch/   # MultitouchSupport の構造体定義（C ヘッダ）。関数は dlsym で取得する
-├── mt-spike/      # 検証用 CLI
 └── Panely/        # 本体
     ├── App/       # main.swift、AppDelegate（メニューバー、イベント集約）
     ├── Layout/    # WindowAction、WindowLayout（配置計算。AppKit 非依存）
