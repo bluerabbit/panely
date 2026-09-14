@@ -12,6 +12,8 @@
 「最大化」はメニューバーと Dock を除いた領域（`NSScreen.visibleFrame`）いっぱいに配置します。
 macOS のネイティブフルスクリーンではありません。配置の基準はウインドウが乗っている画面です。
 
+操作の動きは [index.html](index.html) で再生できます（ブラウザで開くか、GitHub Pages で公開します）。
+
 ## 動作環境
 
 - macOS 14 以降、Apple Silicon で確認しています
