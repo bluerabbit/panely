@@ -16,11 +16,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// タッチ ID はデバイスごとに振られるので、認識器もデバイスごとに持つ
     private var recognizers: [UInt: GestureRecognizer] = [:]
     private var statusItem: NSStatusItem?
+    private lazy var permissionWindow = PermissionWindowController(
+        isTrusted: { [accessibility] in accessibility.isTrusted(prompt: false) },
+        openSettings: { [weak self] in self?.openAccessibilitySettings() })
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        // prompt 付きで一度呼ばないとシステム設定のアクセシビリティ一覧に Panely が載らない。
-        // ショートカットを押す前に許可できるように起動時にも呼ぶ
-        _ = accessibility.isTrusted(prompt: true)
+        _ = ensureTrusted()
         hotKeys = HotKeyService(shortcuts: Self.shortcuts) { [weak self] action in
             self?.perform(action)
         }
@@ -41,10 +42,24 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func perform(_ action: WindowAction) {
-        guard accessibility.isTrusted(prompt: true) else { return }
+        guard ensureTrusted() else { return }
         guard let (window, screen) = accessibility.focusedWindow() else { return }
         let frame = WindowLayout.frame(for: action, in: screen.visibleFrame)
         accessibility.setFrame(frame, for: window)
+    }
+
+    // MARK: - アクセシビリティ許可
+
+    /// 許可があれば true。無ければ案内ウインドウを出して false を返す
+    private func ensureTrusted() -> Bool {
+        if accessibility.isTrusted(prompt: false) { return true }
+        // prompt 付きで一度呼ばないとシステム設定のアクセシビリティ一覧に Panely が載らない。
+        // ウインドウが出ているあいだは繰り返さない（システムのダイアログが何枚も出るため）
+        if permissionWindow.window?.isVisible != true {
+            _ = accessibility.isTrusted(prompt: true)
+        }
+        permissionWindow.show()
+        return false
     }
 
     // MARK: - ジェスチャー
@@ -93,7 +108,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         return menu
     }
 
-    @objc private func openAccessibilitySettings() {
+    @objc func openAccessibilitySettings() {
         open("x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility")
     }
 
