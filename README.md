@@ -38,8 +38,9 @@ open build/Panely.app      # メニューバーに常駐する
    トラックパッドの 4 本指タップ、左右スワイプでも同じ動作になります。
 3. 終了はメニューバーのアイコンから「Panely を終了」です。
 
-常用する場合は `build/Panely.app` を `/Applications` に移し、
-「システム設定 > 一般 > ログイン項目」に登録します。移動後はアクセシビリティ許可を一度やり直します。
+常用する場合は `build/Panely.app` を `/Applications` に移してから起動し、
+メニューバーのメニューで「ログイン時に起動」をオンにします。オンにするのは移動後にしてください。
+移動後はアクセシビリティ許可を一度やり直します。
 
 ### 4 本指スワイプが効かないとき
 
@@ -87,7 +88,7 @@ Sources/
     ├── App/       # main.swift、AppDelegate（メニューバー、イベント集約）
     ├── Layout/    # WindowAction、WindowLayout（配置計算。AppKit 非依存）
     ├── Gesture/   # TouchFrame、GestureRecognizer（4 本指の判定。AppKit 非依存）
-    └── Services/  # AccessibilityService、HotKeyService、MultitouchService
+    └── Services/  # AccessibilityService、HotKeyService、MultitouchService、LoginItemService
 Tests/PanelyTests/ # Layout と Gesture のユニットテスト
 Assets/            # AppIcon.svg と、そこから生成した AppIcon.icns
 scripts/           # make_app.sh（.app の組み立てと署名）、make_icon.sh（SVG から .icns を生成）

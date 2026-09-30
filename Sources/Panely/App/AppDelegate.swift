@@ -2,7 +2,7 @@ import AppKit
 import Carbon
 
 /// サービスを所有して配線する。ホットキーもジェスチャーも perform(_:) に集約する。
-final class AppDelegate: NSObject, NSApplicationDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     /// 既定のショートカット。v1 では設定 UI を持たず、変更はここを書き換えて再ビルドする
     static let shortcuts: [HotKeyShortcut: WindowAction] = [
         HotKeyShortcut(keyCode: UInt32(kVK_Return), modifiers: UInt32(controlKey | optionKey)): .maximize,
@@ -11,11 +11,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     ]
 
     private let accessibility = AccessibilityService()
+    private let loginItem = LoginItemService()
     private var hotKeys: HotKeyService?
     private var multitouch: MultitouchService?
     /// タッチ ID はデバイスごとに振られるので、認識器もデバイスごとに持つ
     private var recognizers: [UInt: GestureRecognizer] = [:]
     private var statusItem: NSStatusItem?
+    private var launchAtLoginItem: NSMenuItem?
     private lazy var permissionWindow = PermissionWindowController(
         isTrusted: { [accessibility] in accessibility.isTrusted(prompt: false) },
         openSettings: { [weak self] in self?.openAccessibilitySettings() })
@@ -90,6 +92,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func makeMenu() -> NSMenu {
         let menu = NSMenu()
+        // ログイン項目の状態はシステム設定側でも変えられるので、開くたびに menuWillOpen で読み直す
+        menu.delegate = self
         // action なしの項目は無効表示になる。ショートカットの案内として使う
         for (shortcut, action) in Self.shortcuts.sorted(by: { $0.value.menuOrder < $1.value.menuOrder }) {
             menu.addItem(withTitle: "\(shortcut.displayString) / \(action.gestureName)  \(action.title)",
@@ -104,8 +108,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         menu.addItem(withTitle: "トラックパッド設定を開く",
                      action: #selector(openTrackpadSettings), keyEquivalent: "").target = self
         menu.addItem(.separator())
+        launchAtLoginItem = menu.addItem(withTitle: "ログイン時に起動",
+                                         action: #selector(toggleLaunchAtLogin), keyEquivalent: "")
+        launchAtLoginItem?.target = self
+        menu.addItem(.separator())
         menu.addItem(withTitle: "Panely を終了", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         return menu
+    }
+
+    @objc private func toggleLaunchAtLogin() {
+        loginItem.setEnabled(!loginItem.isEnabled)
+    }
+
+    func menuWillOpen(_ menu: NSMenu) {
+        launchAtLoginItem?.state = loginItem.isEnabled ? .on : .off
     }
 
     @objc func openAccessibilitySettings() {
